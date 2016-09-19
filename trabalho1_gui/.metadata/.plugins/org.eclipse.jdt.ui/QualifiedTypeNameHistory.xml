@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="estruturas.OrderedList"/>
+<fullyQualifiedTypeName name="estruturas.PilhaString"/>
+<fullyQualifiedTypeName name="algoritmos.InfixPosFixConverter"/>
+<fullyQualifiedTypeName name="algoritmos.AvaliadorRPN"/>
+<fullyQualifiedTypeName name="java.util.Scanner"/>
+<fullyQualifiedTypeName name="java.util.regex.Pattern"/>
+</qualifiedTypeNameHistroy>
