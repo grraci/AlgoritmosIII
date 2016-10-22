@@ -1,0 +1,29 @@
+package trabalhohash;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Scanner;
+
+public class AppMain {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+	}
+	static void readFile(String filename) throws IOException {
+
+		Scanner reader = new Scanner(new FileReader(filename));
+
+		String currentLine = reader.next();
+
+		boolean read1 = true;
+		boolean read2 = false;
+
+	
+		while (reader.hasNext()) {
+
+	
+		}
+		reader.close();
+	}
+}

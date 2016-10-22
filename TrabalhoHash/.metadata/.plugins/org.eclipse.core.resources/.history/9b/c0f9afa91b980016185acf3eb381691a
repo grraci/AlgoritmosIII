@@ -1,0 +1,42 @@
+package trabalhohash;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Scanner;
+
+public class AppMain {
+	static String fileContent;
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		prepareFile("../files/agency.txt");
+		System.out.println(fileContent);
+	}
+	
+	static void prepareFile(String dir){
+		try {
+			readFile(dir);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	static void readFile(String filename) throws IOException {
+
+		Scanner reader = new Scanner(new FileReader(filename));
+
+		String currentLine = reader.next();
+
+		boolean read1 = true;
+		boolean read2 = false;
+
+	
+		while (reader.hasNext()) {
+			currentLine = reader.next();
+			fileContent = currentLine;
+	
+		}
+		reader.close();
+	}
+}
