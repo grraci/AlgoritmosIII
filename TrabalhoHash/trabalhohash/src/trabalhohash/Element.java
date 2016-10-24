@@ -1,40 +1,26 @@
 package trabalhohash;
 
-public class Element {
-	private String key;
-	private String data;
-	private String foreignKey;
-	
-	public Element(){}
-	
-	public Element(String key, String data) {
-		this.setKey(key);
-		this.setData(data);
-	}
+/**
+ * Elemento interno da hashtable
+ *
+ * @param <K>
+ * @param <V>
+ */
+public class Element<K, V> {
+    public K key;
+    public V value;
+    public int hash;
+    public boolean isActive;
 
-	public String getKey() {
-		return key;
-	}
+    public Element(K key, V value) {
+        this.key = key;
+        this.value = value;
 
-	public void setKey(String key) {
-		this.key = key;
-	}
-
-	public String getData() {
-		return data;
-	}
-
-	public void setData(String data) {
-		this.data = data;
-	}
-
-	public String getForeignKey() {
-		return foreignKey;
-	}
-
-	public void setForeignKey(String foreignKey) {
-		this.foreignKey = foreignKey;
-	}
-	
-	
+        if (key != null) {
+            this.hash = key.hashCode();
+        } else {
+            hash = 0;
+        }
+        this.isActive = true; // Flag que indica se o elemento esta ativo no hashtable
+    }
 }

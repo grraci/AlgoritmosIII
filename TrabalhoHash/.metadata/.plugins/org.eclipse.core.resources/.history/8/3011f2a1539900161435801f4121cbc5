@@ -1,0 +1,300 @@
+package trabalhohash;
+
+public class RobinHoodHash<K, V> {
+    private static int INITIAL_TABLE_LENGTH = 11;
+    private static float OCUPATION = 0.90f;
+    private static float INC = 1.25f; //index number code
+
+    /**
+     * Hash table
+     */
+    public Element<K, V>[] table;
+    private int elementsCount;
+    private int longestProbe = 1;
+
+    public RobinHoodHash() {
+        allocation(INITIAL_TABLE_LENGTH);
+    }
+    public int size = 0;
+    /**
+     * Adiciona/atualiza um novo elemento na hash table
+     *
+     * @param key
+     * @param value
+     */
+    public void put(K key, V value) {
+        if (null == key) {
+            throw new KeyNotFoundException();
+        }
+
+        int findIndex = findIndex(key);
+
+        if (findIndex != -1 && table[findIndex].isActive) {
+            // Apenas atualiza o valor do elemento
+        	
+            table[findIndex].value = value;
+            return;
+        }
+        insert(key, value); // Efetua a insercao
+        
+        // Caso a quantidade de elementos ultrapasse a capacidade do array
+        if (++elementsCount > table.length * OCUPATION) { 
+            rehash();
+        }
+    }
+
+    /**
+     * Insere um elemento na hash table
+     *
+     * @param key
+     * @param value
+     */
+   
+    private void insert(K key, V value) {
+        int pos = place(key); // Posicao desejada na tabela
+        int dist = 0;
+        
+        for (; ; ++pos, ++dist) {
+        	System.out.println(pos);
+            if (pos == table.length) {
+                pos = 0;
+            }
+
+            if (table[pos] == null) {
+            	// Encontra um lugar vazio e faz a insercao
+                table[pos] = new Element<>(key, value);
+                longestProbe = Math.max(dist, longestProbe);
+                break;
+            }
+
+            int existingDistance = distanceFromInitialSlot(table[pos], pos);
+
+            if (existingDistance < dist) {
+            	// Se o elemento existente tem uma distancia do acoplamento inicial
+            	// menor que a distancia calculada pelo current element apenas faz o swap dos elementos
+            	// e continua procurando por uma posicao disponivel na hashtable.
+                
+            	if (!table[pos].isActive) {
+                    // Apenas atualiza este elemento
+                    table[pos] = new Element<>(key, value);
+                    longestProbe = Math.max(dist, longestProbe);
+                }
+
+                // Atualiza a probe mais distante
+                longestProbe = Math.max(dist, longestProbe);
+                swap(key, value, pos); // Efetua o swap dos elementos
+
+                // Atualiza o valor da distancia do elemento
+                dist = existingDistance;
+            }
+        }
+    }
+    
+    public void swap(K key, V value, int pos) {
+        // Swap key
+        K tmpK = key;
+        key = table[pos].key;
+        table[pos].key = tmpK;
+        // Swap value
+        V tmpV = value;
+        value = table[pos].value;
+        table[pos].value = tmpV;
+        // Muda o hash de posição
+        table[pos].hash = table[pos].key.hashCode();
+    }
+
+    /**
+     * Calcula a posicao desejada na hashtable.
+     *
+     * @param key
+     * @return
+     */
+    private int place(K key) {
+        return Math.abs(key.hashCode()) % table.length;
+    }
+
+    /**
+     * Calcula a distancia inicial do acoplamento de elementos.
+     *
+     * @return
+     */
+    private int distanceFromInitialSlot(Element<K, V> entry, int pos) {
+        int initialPos = Math.abs(entry.hash) % table.length;
+
+        if (pos < initialPos) {
+            return table.length - initialPos + pos;
+        } else {
+            return pos - initialPos;
+        }
+    }
+
+    /**
+     * Metodo interdo para procurar por um item pela key na hashtable.
+     *
+     * @param key
+     * @return
+     */
+    private int findIndex(K key) {
+        int result = -1;
+
+        int pos = place(key);
+        int dist = 0;
+
+        for (int i = 0; i <= longestProbe; ++i, ++dist, ++pos) {
+            if (pos == table.length) {
+                pos = 0;
+            }
+
+            if (table[pos] == null) {
+                break;
+            } else if (distanceFromInitialSlot(table[pos], pos) < dist) {
+                break;
+            } else if (key.equals(table[pos].key)) {
+                result = pos;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Retorna o elemento pela key
+     *
+     * @param key
+     * @return
+     */
+    public V get(K key) {
+        if (null == key) {
+            throw new KeyNotFoundException(key.toString());
+        }
+
+        V result = null;
+
+        int findIndex = findIndex(key);
+
+        if (findIndex != -1 && table[findIndex].isActive) {
+            result = table[findIndex].value;
+        }
+
+        return result;
+    }
+
+    /**
+     * Verifica se existe algum elemento com a key de entrada
+     * 
+     * @param key
+     * @return
+     */
+    public boolean contains(K key) {
+        if (null == key) {
+        	throw new KeyNotFoundException(key.toString());
+        }
+
+        boolean result = false;
+
+        int findIndex = findIndex(key);
+
+        if (findIndex != -1 && table[findIndex].isActive) {
+            result = true;
+        }
+
+        return result;
+    }
+
+    /**
+     * Deleta um elemento da hashtable
+     *
+     * @param key
+     * @return
+     */
+    public V delete(K key) {
+        if (null == key) {
+        	throw new KeyNotFoundException(key.toString());
+        }
+        V result = null;
+        int findIndex = findIndex(key);
+        
+        if (findIndex != -1 && table[findIndex].isActive) {
+            result = table[findIndex].value;
+            table[findIndex].isActive = false; // Desativa elemento na hashtable
+        }
+        return result;
+    }
+
+    /**
+     * Rehash a hashtable inteira
+     */
+    private void rehash() {
+    	Element<K, V>[] old = table;
+    	allocation((int) (old.length * INC));
+
+        for (int i = 0; i < old.length; ++i) {
+            if (old[i] != null) {
+                put(old[i].key, old[i].value);
+            }
+        }
+    }
+
+    public static boolean isPrime(int n) {
+        if (n == 2 || n == 3) {
+            return true;
+        }
+        if (n == 1 || (n % 2) == 0) {
+            return false;
+        }
+        for (int i = 3; i * i <= n; i += 2) {
+            if ((n % i) == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Algoritmo para procurar o numero primo tão grande quanto n.
+     *
+     * @param n
+     * @return
+     */
+    public static int nextPrime(int n) {
+        if (n <= 0) { // menor que zero.
+            n = 3;
+        }
+        if ((n % 2) == 0) {
+            n++;
+        }
+        while (!isPrime(n)) {
+            n += 2;
+        }
+        return n;
+    }
+    
+    
+    /**
+     * Why use prime numbers to allocate elements in hashtable?
+     * 
+     * Os números primos são escolhidos para melhor distribuir os dados entre os buckets (acoplementos de elemento) de hash. 
+     * Se a distribuição de entradas é aleatória e uniformemente distribuídos, 
+     * em seguida, a escolha do código hash / módulo não importa. 
+     * Tem apenas um impacto quando existe um certo padrão para as entradas.
+     * 
+     * */
+    
+    /**
+     * Faz a alocacao no array usado pela hashtable
+     *
+     * @param size
+     */
+    
+    public void allocation(int size) {
+        int N = nextPrime(size); // Numero primo para melhor alocacao do elemento na memoria do hash
+        table = new Element[N];
+        elementsCount = 0;
+        longestProbe = 1;
+
+        for (int i = 0; i < table.length; ++i) {
+            table[i] = null;
+        }
+    }
+}

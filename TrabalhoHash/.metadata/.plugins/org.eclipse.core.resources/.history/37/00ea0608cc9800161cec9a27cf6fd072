@@ -1,0 +1,42 @@
+package trabalhohash;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Scanner;
+
+
+public class AppMain {
+
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+	    //System.getProperty("user.dir"))
+		prepareFile("files/agency.txt");
+		//System.out.println(fileContent);
+	}
+	
+	static void prepareFile(String dir){
+		try {
+			readFile(dir);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	static void readFile(String filename) throws IOException {
+		Scanner reader = new Scanner(new FileReader(filename));	
+		String currentLine = reader.nextLine();
+		RobinHoodHashTable<String, String> rhhash = new RobinHoodHashTable<>();
+		while (reader.hasNextLine()) {
+			currentLine = reader.nextLine();
+			String [] infos = currentLine.split(",");
+			String objData = "";
+			for(int i = 1; i < infos.length; i++)
+				objData += infos[i];
+		
+			rhhash.put(infos[0], objData);
+		}
+		reader.close();
+	}
+}

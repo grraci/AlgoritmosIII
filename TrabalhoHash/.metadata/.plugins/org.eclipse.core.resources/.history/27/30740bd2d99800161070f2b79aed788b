@@ -1,0 +1,313 @@
+package trabalhohash;
+
+public class RobinHoodHashTable<K, V> {
+    private static int INITIAL_TABLE_SIZE = 11;
+    private static float OCCUPANCY = 0.90f;
+    private static float INC = 1.25f;
+
+    /**
+     * Elemento interno da hashtable
+     *
+     * @param <K>
+     * @param <V>
+     */
+    private static class Element<K, V> {
+        K key;
+        V value;
+        int hash;
+        boolean isActive;
+
+        public Element(K key, V value) {
+            this.key = key;
+            this.value = value;
+
+            if (key != null) {
+                this.hash = key.hashCode();
+            } else {
+                hash = 0;
+            }
+
+            this.isActive = true; // Flag indicating if this is a tombstone
+        }
+    }
+
+    /**
+     * Hash table
+     */
+    public Element<K, V>[] table;
+    private int elementsCount;
+    private int longestProbe = 1;
+
+    public RobinHoodHashTable() {
+        allocate(INITIAL_TABLE_SIZE);
+    }
+
+    /**
+     * Adiciona/atualiza um novo elemento na hash table
+     *
+     * @param key
+     * @param value
+     */
+    public void put(K key, V value) {
+        if (null == key) {
+            throw new IllegalStateException("Null value for key is " +
+                    "unsupported!");
+        }
+
+        int findIndex = findIndex(key);
+
+        if (findIndex != -1 && table[findIndex].isActive) {
+            // Apenas atualiza o valor do elemento
+            table[findIndex].value = value;
+            return;
+        }
+
+        insert(key, value);
+
+        if (++elementsCount > table.length * OCCUPANCY) {
+            rehash();
+        }
+    }
+
+    /**
+     * Insere um elemento na hash table
+     *
+     * @param key
+     * @param value
+     */
+    private void insert(K key, V value) {
+        int pos = place(key); // Posicao desejada na tabela
+        int dist = 0;
+
+        for (; ; ++pos, ++dist) {
+            if (pos == table.length) {
+                pos = 0;
+            }
+
+            if (table[pos] == null) {
+            	// Encontra um lugar vazio e faz a insercao
+                table[pos] = new Element<>(key, value);
+                longestProbe = Math.max(dist, longestProbe);
+                break;
+            }
+
+            int existingDistance = distanceFromInitialBucket(table[pos], pos);
+
+            if (existingDistance < dist) {
+            	// Se o elemento existente tem uma distancia do acoplamento inicial
+            	// menor que a distancia calculada pelo current element apenas faz o swap dos elementos
+            	// e continua procurando por uma posicao disponivel na hashtable.
+                
+            	if (!table[pos].isActive) {
+                    // Apenas atualiza este elemento
+                    table[pos] = new Element<>(key, value);
+                    longestProbe = Math.max(dist, longestProbe);
+                }
+
+                // Atualiza a probe mais distante
+                longestProbe = Math.max(dist, longestProbe);
+
+                // Swap key
+                K tmpK = key;
+                key = table[pos].key;
+                table[pos].key = tmpK;
+                // Swap value
+                V tmpV = value;
+                value = table[pos].value;
+                table[pos].value = tmpV;
+                // Muda o hash de posição
+                table[pos].hash = table[pos].key.hashCode();
+
+                // Atualiza o valor da distancia do elemento
+                dist = existingDistance;
+            }
+        }
+    }
+
+    /**
+     * Calcula a posicao desejada na hashtable.
+     *
+     * @param key
+     * @return
+     */
+    private int place(K key) {
+        return Math.abs(key.hashCode()) % table.length;
+    }
+
+    /**
+     * Calcula a distancia inicial do acoplamento de elementos.
+     *
+     * @return
+     */
+    private int distanceFromInitialBucket(Element<K, V> entry, int pos) {
+        int initialPos = Math.abs(entry.hash) % table.length;
+
+        if (pos < initialPos) {
+            return table.length - initialPos + pos;
+        } else {
+            return pos - initialPos;
+        }
+    }
+
+    /**
+     * Metodo interdo para procurar por um item pela key na hashtable.
+     *
+     * @param key
+     * @return
+     */
+    private int findIndex(K key) {
+        int result = -1;
+
+        int pos = place(key);
+        int dist = 0;
+
+        for (int i = 0; i <= longestProbe; ++i, ++dist, ++pos) {
+            if (pos == table.length) {
+                pos = 0;
+            }
+
+            if (table[pos] == null) {
+                break;
+            } else if (distanceFromInitialBucket(table[pos], pos) < dist) {
+                break;
+            } else if (key.equals(table[pos].key)) {
+                result = pos;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Retorna o elemento pela key
+     *
+     * @param key
+     * @return
+     */
+    public V get(K key) {
+        if (null == key) {
+            throw new KeyNotFoundException(key.toString());
+        }
+
+        V result = null;
+
+        int findIndex = findIndex(key);
+
+        if (findIndex != -1 && table[findIndex].isActive) {
+            result = table[findIndex].value;
+        }
+
+        return result;
+    }
+
+    /**
+     * Verifica se existe algum elemento com a key de entrada
+     * 
+     * @param key
+     * @return
+     */
+    public boolean contains(K key) {
+        if (null == key) {
+        	throw new KeyNotFoundException(key.toString());
+        }
+
+        boolean result = false;
+
+        int findIndex = findIndex(key);
+
+        if (findIndex != -1 && table[findIndex].isActive) {
+            result = true;
+        }
+
+        return result;
+    }
+
+    /**
+     * Deleta um elemento da hashtable
+     *
+     * @param key
+     * @return
+     */
+    public V delete(K key) {
+        if (null == key) {
+        	throw new KeyNotFoundException(key.toString());
+        }
+        V result = null;
+        int findIndex = findIndex(key);
+        
+        if (findIndex != -1 && table[findIndex].isActive) {
+            result = table[findIndex].value;
+            table[findIndex].isActive = false;
+        }
+        return result;
+    }
+
+    /**
+     * Rehash a hashtable inteira
+     */
+    private void rehash() {
+    	Element<K, V>[] old = table;
+        allocate((int) (old.length * INC));
+
+        for (int i = 0; i < old.length; ++i) {
+            if (old[i] != null) {
+                put(old[i].key, old[i].value);
+            }
+        }
+    }
+
+    public static boolean isPrime2(int n) {
+        if (n == 2 || n == 3) {
+            return true;
+        }
+        if (n == 1 || (n % 2) == 0) {
+            return false;
+        }
+        for (int i = 3; i * i <= n; i += 2) {
+            if ((n % i) == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Algorithm for finding a primer number at least as large as n.
+     *
+     * @param n
+     * @return
+     */
+    public static int nextPrime(int n) {
+        if (n <= 0) { // less than zero
+            n = 3;
+        }
+        if ((n % 2) == 0) {
+            n++;
+        }
+        while (!isPrime2(n)) {
+            n += 2;
+        }
+        return n;
+    }
+    
+    
+    /**
+     * Allocate array used for hash table
+     *
+     * @param size
+     */
+    
+    
+    public void allocate(int size) {
+        int N = nextPrime(size);
+        System.out.println(nextPrime(size));
+        table = new Element[N];
+        elementsCount = 0;
+        longestProbe = 1;
+
+        for (int i = 0; i < table.length; ++i) {
+            table[i] = null;
+        }
+    }
+}

@@ -1,0 +1,40 @@
+package trabalhohash;
+
+public class Element {
+	private String key;
+	private String data;
+	private String foreignKey;
+	
+	public Element(){}
+	
+	public Element(String key, String data) {
+		this.setKey(key);
+		this.setData(data);
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
+	}
+
+	public String getData() {
+		return data;
+	}
+
+	public void setData(String data) {
+		this.data = data;
+	}
+
+	public String getForeignKey() {
+		return foreignKey;
+	}
+
+	public void setForeignKey(String foreignKey) {
+		this.foreignKey = foreignKey;
+	}
+	
+	
+}

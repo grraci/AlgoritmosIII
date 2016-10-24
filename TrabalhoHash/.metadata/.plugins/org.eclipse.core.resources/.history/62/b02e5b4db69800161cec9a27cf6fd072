@@ -1,0 +1,144 @@
+package trabalhohash;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Scanner;
+
+
+public class RobinHoodHashing<K,V> {
+
+	private static class TableElement<X,Y> {
+		public final X key;
+		public final Y value;
+		public final int[] hashes;
+		
+		public TableElement(X key, Y value, int hashcount) {
+			this.key = key;
+			this.value = value;
+			this.hashes = TableElement.getHashes(key, hashcount);
+		}
+		public static <X> int[] getHashes(X key, int hashcount) {
+			int[] hashes = new int[hashcount];
+			hashes[0] = key.hashCode();
+			for (int i = 1; i < hashcount; i++) {
+				hashes[i] = String.format("%s%d", key.toString(), hashes[i-1]).hashCode();
+				if (hashes[i] < 0) hashes[i] *= -1;
+			}
+			return hashes;
+		}
+	}
+	
+	private int hashcount;
+	
+	private Object[] table = new Object[50000];
+
+	private int numElements = 0;
+
+	public RobinHoodHashing(int hashcount) {
+		this.hashcount = hashcount;
+	}
+	
+	static RobinHoodHashing<String, String> hashTable; 
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+	    //System.getProperty("user.dir"))
+		prepareFile("files/calendar.txt");
+		
+		System.out.println(hashTable.get("T1D@1"));
+	}
+	
+	static void prepareFile(String dir){
+		try {
+			readFile(dir);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	static void readFile(String filename) throws IOException {
+		Scanner reader = new Scanner(new FileReader(filename));	
+		String currentLine = reader.nextLine();
+		
+		hashTable = new RobinHoodHashing<>(2);
+		
+		while (reader.hasNextLine()) {
+			currentLine = reader.nextLine();
+			String [] infos = currentLine.split(",");
+			String objData = "";
+			for(int i = 1; i < infos.length; i++)
+				objData += infos[i];
+			
+			hashTable.put(infos[0], objData);
+		}
+		reader.close();
+	}
+	
+	
+	private V get(K key) {
+		int[] hashes = TableElement.getHashes(key, hashcount);
+		for (int h : hashes) {
+			int index = h % table.length;
+			if (table[index] != null) {
+				@SuppressWarnings("unchecked")
+				TableElement<K,V> elem = (TableElement<K,V>)table[index];
+				if (elem.key.equals(key)) {
+					return elem.value;
+				}
+			}
+		}
+		throw new KeyNotFoundException();
+	}
+
+	private void put(K key, V value) {
+		TableElement<K,V> elem = new TableElement<>(key, value, hashcount);
+		robin(elem, 0, 0);
+	}
+
+	private void robin(TableElement<K, V> elem, int hash, int count) {
+		if (count > 20) {
+			rehash(elem);
+			return;
+		}
+		
+		int index = elem.hashes[hash] % table.length;
+		if (table[index] == null) {
+			table[index] = elem;
+			numElements ++;
+		} else {
+			@SuppressWarnings("unchecked")
+			TableElement<K,V> old = (TableElement<K,V>)table[index];
+			table[index] = elem;
+			robin(old, (hash + 1) % hashcount, ++count);
+		}
+	}
+
+	private static boolean rehashing = false;
+
+	private void rehash(TableElement<K, V> elem) {
+		if (rehashing)
+			throw new IllegalStateException();
+		rehashing = true;
+		doRehash(elem);
+		rehashing = false;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void doRehash(TableElement<K, V> elem) {
+		Object[] oldTable = table;
+		table = new Object[table.length * 2];
+		try {
+			robin(elem, 0, 0);
+			for (Object o : oldTable) {
+				if (o != null) {
+					elem = (TableElement<K,V>)o;
+					robin(elem, 0, 0);
+				}
+			}
+		} catch (IllegalStateException e) {
+			table = oldTable;
+		}
+	}
+
+}

@@ -1,0 +1,128 @@
+package trabalhohash;
+
+public class LinkedList<T extends Comparable<T>> {
+
+	private Node<T> head; 
+	private Node<T> tail; 
+	private int size;
+	private Node<T> prev;
+
+	public void add(T data) {
+		Node<T> newNode = new Node<>(data);
+		newNode.setNext(head);
+		head = newNode;
+
+		if (tail == null) {
+			tail = head;
+		}
+		size++;
+	}
+
+	public void add(Node<T> newNode, Node<T> prev) {
+		if (prev == tail) {
+			tail.setNext((Node<T>)newNode);
+			tail = newNode;
+		} else {
+			newNode.setNext(prev.getNext());
+			prev.setNext(newNode);
+		}
+		size++;
+	}
+
+	public void append(Node<T> novo) {
+		tail.setNext(novo);
+		tail = novo;
+		size++;
+	}
+
+	public Node<T> find(T data) {
+		Node<T> cur = getHead();
+		prev = null;
+
+		try{
+			if(!isEmpty()) {
+				while(!cur.getData().equals(data)) {
+					prev = cur;
+					cur = cur.getNext();
+				}
+				if(cur.getData().equals(data))
+					return cur;
+			}
+		} catch(Exception e) {
+			//System.out.println("Does not have this value ("+data+") in list..");
+			return null;	
+		}
+		return null;
+	}
+
+
+	public void remove(T data) {
+		Node<T> cur = getHead();
+		Node<T> prev = null;
+
+		try{
+			if(!isEmpty()) {
+				while(!cur.getData().equals(data)) {
+					prev = cur;
+					cur = cur.getNext();
+				}
+				if(cur.getData().equals(data)) {
+					if(getSize() == 1) {
+						head = tail = null;
+					} else {
+						if(cur == getHead())
+							head = cur.getNext();
+						else
+							prev.setNext(cur.getNext());
+					}
+				}
+			}
+		}catch(Exception e){
+			System.out.println("Does not have this value ("+data+") in list..");
+
+		}
+	}
+
+	public Node<T> getHead() {
+		return head;
+	}
+
+	public int getSize() {
+		return size;
+	}
+
+	public boolean isEmpty() {
+		return size == 0;
+	}
+
+	public String toString() {
+		StringBuilder tmp = new StringBuilder("");
+		Node<T> temp = head;
+		while(temp != null) {
+			tmp.append(temp+""+temp.ol+"");
+			temp = temp.getNext();
+		}
+		tmp.append("");
+		return tmp.toString();
+	}
+
+	public void printMatrix() {
+		Node<T> temp = head;
+		if(temp != null) {
+			while(temp != null) {
+				String toPrint = "";
+				Node<T> olHead = (Node<T>) temp.ol.getHead();
+				while(olHead != null) {
+					toPrint = olHead.toString();
+					System.out.print(toPrint);
+					olHead = olHead.getNext();
+				}
+				System.out.println("\n");
+				temp = temp.getNext();
+			}
+		} else {
+			System.out.println("A planilha esta vazia.");
+		}
+	}
+
+}
