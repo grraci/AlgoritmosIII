@@ -1,0 +1,33 @@
+import java.util.ArrayList;
+import java.util.List;
+
+ public class Edge {
+	private String data;
+	public List<Edge> edges;
+	
+	Edge(){}
+	
+	Edge(String data){
+		this.data = data;
+		this.edges = new ArrayList<Edge>();
+	}
+	
+	public String getData() {
+		return data;
+	}
+	
+	public void setData(String data) {
+		this.data = data;
+	}
+	
+	public List<Edge> getEdges() {
+		return edges;
+	}
+	
+	public Edge getUniqueValue(String value) {
+		for(int i = 0; i < edges.size(); i++)
+			 if(edges.get(i).getData().equalsIgnoreCase(value))
+				 return e;
+		return null;
+	}
+ }

@@ -1,0 +1,115 @@
+import java.io.*;
+import java.util.*;
+
+public class AppMain {	
+	static String xi = null; // Variável com intuito de pegar o ultimo nós/vértices com filhos
+	static int MAX_DEPTH = 0;// Profundidade máxima do nó
+	
+	
+    /**
+     * Lê o arquivo e popula o grafo
+     *
+     * @param filename
+     * @param g
+     */
+	static void populateGraph(String filename, Graph g) throws IOException {
+		Scanner reader = new Scanner(new FileReader(filename));	
+		String currentLine = null;
+		
+		while (reader.hasNextLine()) {
+			currentLine = reader.nextLine();
+			String [] infos = currentLine.split(",");
+			xi = infos[0];
+			String yi = infos[1];
+			
+			if(g.getUniqueValue(xi) == null)
+				g.graph.add(new Edge(xi));
+			g.getUniqueValue(xi).edges.add(new Edge(yi));
+			
+			if(g.getUniqueValue(yi) == null)
+				g.graph.add(new Edge(yi));
+			g.getUniqueValue(yi).edges.add(new Edge(xi));
+			
+		}
+		reader.close();
+	}
+	
+    /**
+     * Reseta os valores expored e depth dos nós/vértices do grafo
+     *
+     * @param g
+     */
+	static void resetGraph(Graph g) {
+		g.graph.forEach((k) -> {
+		  k.explored = false; 
+		  k.depth = Integer.MAX_VALUE;
+		});
+	}
+	
+    /**
+     * Calcula a profundidade máxima dos nós/vértices
+     *
+     * @param g
+     */
+	static void maxDepth(Graph g) {
+		g.graph.forEach((k) -> {
+	        if(k.depth > MAX_DEPTH)
+	        	MAX_DEPTH = k.depth;
+	        if (k.depth == MAX_DEPTH)
+	           xi = k.getData();
+		});
+	}
+	
+    /**
+     * Implementação de Breadth First Search
+     * para definir a profundidade dos elementos no grafo
+     *
+     * @param index
+     * @param g
+     */
+	public static void bfs(String index, Graph g){
+		resetGraph(g); // Resetando os valores do grafo
+		ArrayList<Edge> edgesQueue = new ArrayList<Edge>(); // Usando um array list como pilha
+		g.getUniqueValue(index).explored = true;
+		g.getUniqueValue(index).depth = 0;
+		edgesQueue.add(g.getUniqueValue(index));
+		Edge temp = null;
+		
+		while(edgesQueue.size() != 0){
+			//Pega o primeiro elemento da lista e depois deleta ele
+			temp = edgesQueue.get(0);
+			edgesQueue.remove(0);
+			for(int i = 0; i < g.getUniqueValue(temp.getData()).edges.size(); i++){
+				Edge cur = g.getUniqueValue(g.getUniqueValue(temp.getData()).edges.get(i).getData()); 
+				if(cur.explored == false) {
+					cur.explored = true;
+					cur.depth = g.getUniqueValue(temp.getData()).depth+1;
+					edgesQueue.add(cur);
+				}
+			}
+		}
+		maxDepth(g);// invocando a funcao para calcular a profundidade máxima
+	}
+	
+	
+    /**
+     * A solução é basicamente implementar a bfs para mapear a profundidade dos elementos no grafo
+     * apos esse mapeamento são feitos calculos para se ter o resultado esperado
+     * que é em quantas horas uma informacao demora para se tornar viral no nosso grafo de horas.
+     * 
+     */
+	public static void main(String[] args) {
+		Graph g = new Graph();
+		try {
+			populateGraph("hours.txt", g);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		bfs(xi,g);// Invocando a funcao de bfs com o ultimo nó inserido com filhos
+		bfs(xi,g);// Invocando a funcao com o nó mais profundo
+		System.out.println(Math.ceil(MAX_DEPTH / 2));  // Calculo para demonstrar o nó onde a informação começa a ficar viral.
+	}
+
+}

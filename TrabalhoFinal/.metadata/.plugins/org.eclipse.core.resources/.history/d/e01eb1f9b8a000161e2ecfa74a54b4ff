@@ -1,0 +1,31 @@
+import java.util.ArrayList;
+import java.util.List;
+
+public class AppMain {
+	
+	static class Graph {
+		private List<Edge> graph;
+		
+		Graph(){
+			this.graph = new ArrayList<Edge>();
+		}
+		
+		public List<Edge> getGraph() {
+			return graph;
+		}
+
+		public void setGraph(List<Edge> graph) {
+			this.graph = graph;
+		}
+		
+	}
+	
+	
+	public static void main(String[] args) {
+
+		Edge someEdge = new Edge("2");
+		someEdge.edges.add(new Edge("5"));
+
+	}
+
+}

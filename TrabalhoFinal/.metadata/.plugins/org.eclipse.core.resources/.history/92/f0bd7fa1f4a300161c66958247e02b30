@@ -1,0 +1,95 @@
+import java.io.*;
+import java.util.*;
+
+public class AppMain {	
+	static String xi = null;
+	static int MAX_DEPTH = 0;
+	
+	static void populateGraph(String filename, Graph g) throws IOException {
+		Scanner reader = new Scanner(new FileReader(filename));	
+		String currentLine = null;
+		
+		while (reader.hasNextLine()) {
+			currentLine = reader.nextLine();
+			String [] infos = currentLine.split(",");
+			xi = infos[0];
+			String yi = infos[1];
+			
+			if(g.getUniqueValue(xi) == null)
+				g.graph.add(new Edge(xi));
+			g.getUniqueValue(xi).edges.add(new Edge(yi));
+			
+			if(g.getUniqueValue(yi) == null)
+				g.graph.add(new Edge(yi));
+			g.getUniqueValue(yi).edges.add(new Edge(xi));
+			
+		}
+		reader.close();
+	}
+	
+	static void resetGraph(Graph g) {
+		g.graph.forEach((k) -> {
+		  k.explored = false; 
+		  k.depth = Integer.MAX_VALUE;
+		});
+	}
+	
+	static void maxDepth(Graph g) {
+		g.graph.forEach((k) -> {
+	        if(k.depth > MAX_DEPTH) {
+	        	MAX_DEPTH = k.depth;
+	        } 
+	        if (k.depth == MAX_DEPTH) {
+	           xi = k.getData();
+	        }
+		});
+	}
+	
+	public static void bfs(String index, Graph g){
+		resetGraph(g);
+		ArrayList<Edge> edgesQueue = new ArrayList<Edge>();
+		g.getUniqueValue(index).explored = true;
+		g.getUniqueValue(index).depth = 0;
+		edgesQueue.add(g.getUniqueValue(index));
+		Edge temp = null;
+		
+		while(edgesQueue.size() != 0){
+			temp = edgesQueue.get(0);
+			edgesQueue.remove(0);
+			for(int i = 0; i < g.getUniqueValue(temp.getData()).edges.size(); i++){
+				System.out.println(String.valueOf(i));
+				//System.out.println(g.getUniqueValue(g.getUniqueValue(temp.getData()).getUniqueValue(String.valueOf(i)).getData()));
+				System.out.println(g.getUniqueValue(g.getUniqueValue(temp.getData()).edges.get(i).getData()));
+				Edge cur = g.getUniqueValue(g.getUniqueValue(temp.getData()).edges.get(i).getData());
+				if(cur.explored == false) {
+					cur.explored = true;
+					cur.depth = g.getUniqueValue(temp.getData()).depth+1;
+					edgesQueue.add(cur);
+				}
+			}
+		}
+		
+	}
+	
+	public static void main(String[] args) {
+		Graph g = new Graph();
+		try {
+			populateGraph("hours.txt", g);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Collections.sort(g.graph, new Comparator<Edge>() {
+	        public int compare(Edge e1, Edge e2) {
+	        	Edge edge1 = (Edge) e1;
+	        	Edge edge2 = (Edge) e2;
+	            return edge1.getData().compareToIgnoreCase(edge2.getData());
+	        }
+	    });
+		bfs(xi, g);
+		g.graph.forEach((k) -> System.out.println(k.getData()+" -"+k.explored));
+
+	}
+
+}

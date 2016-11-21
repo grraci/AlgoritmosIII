@@ -1,0 +1,20 @@
+import java.util.List;
+
+public class AppMain {
+	
+	class Edge {
+		private String data;
+		private List<Edge> edges;
+	}
+	
+	class Graph {
+		
+	}
+	
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

@@ -1,0 +1,33 @@
+import java.util.List;
+
+public class AppMain {
+	
+	static class Graph {
+		private List<Edge> graph;
+		
+		Graph(){}
+		
+		public List<Edge> getGraph() {
+			return graph;
+		}
+
+		public void setGraph(List<Edge> graph) {
+			this.graph = graph;
+		}
+		
+	}
+	
+	
+	public static void main(String[] args) {
+
+		Graph g = new Graph();
+		Edge someOne = new Edge();
+		someOne.setData("2");
+		someOne.edges.add("2");
+		g.graph.add(someOne);
+		
+		System.out.println(g.graph);
+
+	}
+
+}

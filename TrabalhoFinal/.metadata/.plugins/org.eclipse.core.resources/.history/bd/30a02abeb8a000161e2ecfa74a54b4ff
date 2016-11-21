@@ -1,0 +1,25 @@
+import java.util.List;
+
+ public class Edge {
+	private String data;
+	public List<Edge> edges;
+	
+	Edge(){}
+	
+	Edge(String data){
+		this.data = data;
+		this.edges = new List<>();
+	}
+	
+	public String getData() {
+		return data;
+	}
+	
+	public void setData(String data) {
+		this.data = data;
+	}
+	
+	public List<Edge> getEdges() {
+		return edges;
+	}
+ }

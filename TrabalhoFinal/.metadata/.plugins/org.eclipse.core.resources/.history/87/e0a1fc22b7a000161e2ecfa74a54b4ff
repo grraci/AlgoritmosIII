@@ -1,0 +1,50 @@
+import java.util.List;
+
+public class AppMain {
+	
+	class Edge {
+		private String data;
+		private List<Edge> edges;
+		
+		public String getData() {
+			return data;
+		}
+		
+		public void setData(String data) {
+			this.data = data;
+		}
+		
+		public List<Edge> getEdges() {
+			return edges;
+		}
+		
+		public void setEdges(List<Edge> edges) {
+			this.edges = edges;
+		}
+		
+	}
+	
+	class Graph {
+		private List<Edge> graph;
+		
+		Graph(){}
+		
+		public List<Edge> getGraph() {
+			return graph;
+		}
+
+		public void setGraph(List<Edge> graph) {
+			this.graph = graph;
+		}
+		
+	}
+	
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		
+		Graph g = new Graph();
+
+	}
+
+}
